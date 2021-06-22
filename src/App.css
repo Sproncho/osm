@@ -1,38 +1,66 @@
-.App {
-  text-align: center;
+.leaflet-container{
+  width:700px;
+  height: 600px;
+  z-index: 0;;
+}
+.checkBoxes{
+  margin:0 auto;
+  width:fit-content;
+  margin-top:30px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.App .main{
+  display:flex;
+  justify-content: space-between;
+  padding-top: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.App .results{
+  width: 300px;
+  border:2px solid black;
+  height:600px;
+  overflow-y: scroll;
+}
+.App .temp{
+  width: 300px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.searchBox{
+  height:50px;
+  margin:0 auto;
+  width:fit-content;
+  margin-top:20px;
+  display:flex;
+
+}
+.searchBox .cityInput-container{
+ 
+  width: 200px;
+  font-size:1.2rem;
+  position:relative;
+  z-index: 999;
+  border:2px solid black;
+  border-radius:0px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.App-link {
-  color: #61dafb;
+.searchBox .cityInput__control{
+  border:2px solid black;
+  height:40px;
+  border-radius:0px;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.searchBox .cityInput__indicators{
+  display:none;
+}
+.searchBox .searchBtn{
+  height:100%;
+  background:none;
+  border:2px solid black;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:1.2rem;
+  margin-left: 3px;;
+}
+.searchBox .searchBtn:hover{
+  background-color:rgb(211, 208, 208);
+  cursor: pointer;
 }
