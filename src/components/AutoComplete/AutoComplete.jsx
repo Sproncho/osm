@@ -1,14 +1,16 @@
-import "./AutoComplete.css"
-import {useState} from "react"
+import "./AutoComplete.css";
+import { useState } from "react";
 export default function AutoComplete({
   value,
   setValue,
   placeholder,
   onChange,
   options,
-  setOptions
+  setOptions,
+  customOptions,
+  liOnClick
 }) {
-  const [optionsActive,setOptionsActive] = useState(false);
+  const [optionsActive, setOptionsActive] = useState(false);
   return (
     <div className="autoComplete">
       <input
@@ -17,17 +19,29 @@ export default function AutoComplete({
         value={value}
         onChange={onChange}
         onClick={!optionsActive && setOptionsActive(true)}
-        onBlur={()=>{
-          setTimeout(()=>{
-            setOptions([])
-          },200);
+        onBlur={() => {
+          setTimeout(() => {
+            setOptions([]);
+          }, 200);
         }}
       />
       <ul>
-        {options && options.map(option =><li onClick={()=>{
-          setValue(option);
-          setOptions([]);
-        }}>{option}</li>)}
+        {options && !customOptions &&
+          options.map((option) => {
+            return <li onClick={() => {
+                  setValue(option);
+                  setOptions([]);
+                }}>
+                {option}
+              </li>
+          })}
+          {options && customOptions && options.map((option) =>{
+            return <li onClick={() =>{
+              liOnClick(option)
+              setValue(option.text)
+              setOptions([])
+            }}>{option.text}</li>
+          })}
       </ul>
     </div>
   );

@@ -23,9 +23,13 @@ function App({ loading, setLoading }) {
   const [airportsActive, setAirportsActive] = useState(false);
   const [json, setJson] = useState(null);
   const [cityName, setCityName] = useState("");
-  const [autoCompleteData, setAutoCompleteData] = useState([]);
+  const [dataBaseCity, setDataBaseCity] = useState("");
+  
   const [options, setOptions] = useState();
+  const [optionsFromDatabase, setOptionsFromDatabase] = useState();
   const [searchMarker, setSearchMarker] = useState(null);
+  const [databaseMarker,setDatabaseMarker] = useState(null);
+  console.log(data);
 
   const airports = airportsData.filter((airport) => {
     if (data.cities.find((city) => airport.city === city.city)) {
@@ -36,12 +40,13 @@ function App({ loading, setLoading }) {
   });
 
   const findCities = async (cityName) => {
-    const url = `https://nominatim.openstreetmap.org/search?city=${cityName}&format=geojson`;
+    const url = `https://nominatim.openstreetmap.org/search?city=${cityName}&format=geojson&accept-language=en
+    `;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
         setJson(data.features);
-        // console.log(data.features[0].properties);
+        console.log(data.features[0].properties);
       });
   };
   const findAutocomplete = async (cityName) => {
@@ -56,7 +61,6 @@ function App({ loading, setLoading }) {
   };
 
   const resultClick = (city) => {
-    console.log("clockde");
     setSearchMarker({
       coordinates: {
         lat: city.geometry.coordinates[1],
@@ -72,44 +76,90 @@ function App({ loading, setLoading }) {
     }
   };
 
+
   const onChangeHandler = async (text) => {
     setCityName(text);
     let matches = [];
     if (text.length > 0) {
-      const data = await findAutocomplete(text);
+      const result = await findAutocomplete(text);
       // console.log(data);
-      matches = data.map((feature) => feature.properties.name);
+      matches = result.map((feature) => feature.properties.name);
       matches = matches.filter((a, b) => matches.indexOf(a) === b);
     }
     console.log("matches", matches);
     setOptions(matches);
    
   };
+  const databaseCityChangeHandler = (text) =>{
+    setDataBaseCity(text);
+    let matches = [];
+    if(text.length > 0){
+      matches = data.cities.map((feature,i) => {return {...feature,text:`${feature.city}, ${feature.country}`}});
+      matches = matches.filter(feature => feature.city.includes(text))
+      matches = matches.sort((a, b) =>{
+        if(a.city.startsWith(text)){
+          return -1;
+        }
+        if(b.city.startsWith(text)){
+          return 1;
+        }
+        return 0;
+      })
+      matches = matches.slice(0, 15);
+    }
+    setOptionsFromDatabase(matches);
+  }
+
+  const liOnclickHandler=(option)=>{
+    setDatabaseMarker({
+      coordinates:{
+        lat:option.lat, 
+        lng:option.lon
+      },
+      name:option.city
+    })
+    if (map) {
+      map.flyTo({
+        lat:option.lat,
+        lng: option.lon,
+      });
+    }
+  }
   return (
     <div className="App">
       <div className="searchBox">
+      <div className="openStreetAutocomplete">
+          <AutoComplete
+            onChange={(e) => {
+              onChangeHandler(e.target.value);
+            }}
+            placeholder="search cities from OSM"
+            value = {cityName}
+            setValue={setCityName}
+            options = {options}
+            setOptions={setOptions}
+          />
+          <button
+            className="searchBtn"
+            onClick={() => {
+              findCities(cityName);
+            }}
+          >
+            search
+          </button>
+      </div>
         <AutoComplete
           onChange={(e) => {
-            onChangeHandler(e.target.value);
+            databaseCityChangeHandler(e.target.value);
           }}
-          placeholder="type city name"
-          value = {cityName}
-          setValue={setCityName}
-          options = {options}
-          setOptions={setOptions}
+          placeholder="search city from database"
+          value = {dataBaseCity}
+          setValue={setDataBaseCity}
+          options = {optionsFromDatabase}
+          customOptions
+          setOptions={setOptionsFromDatabase}
+          liOnClick={liOnclickHandler}
         />
-        {options &&
-          options.map((option, i) => {
-            <div key={i}>option</div>;
-          })}
-        <button
-          className="searchBtn"
-          onClick={() => {
-            findCities(cityName);
-          }}
-        >
-          search
-        </button>
       </div>
       <div className="main">
         <div className="results">
@@ -150,6 +200,12 @@ function App({ loading, setLoading }) {
               <Popup>{searchMarker.name}</Popup>
             </Marker>
           )}
+          {databaseMarker && (
+            <Marker position={databaseMarker.coordinates}>
+              <Popup>{databaseMarker.name}</Popup>
+            </Marker>
+          )}
+
         </MapContainer>
         <div className="temp">
           <div className="checkBoxes">

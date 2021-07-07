@@ -7,6 +7,9 @@
   margin-top:5px;
   padding:10px 5px;
 }
+.highlited{
+  background-color:rgb(245, 174, 174);
+}
 .SearchResult p{
   margin:2px 0;
 }
